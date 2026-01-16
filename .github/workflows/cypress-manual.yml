@@ -28,9 +28,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - - name: Cypress run
-          uses: cypress-io/github-action@v6
-          with:
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+        with:
           # This change ensures 'all' sends a blank string, which tells Cypress to run everything
           spec: ${{ github.event.inputs.spec == 'all' && '' || github.event.inputs.spec }}
           start: npm start
@@ -42,4 +42,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: cypress-screenshots
-          path: C:\Autoprac\cypress-example-kitchensink\Screenshot
+          # We use the relative path because 'C:\Autoprac' doesn't exist on GitHub's Linux servers
+          path: cypress/screenshots
