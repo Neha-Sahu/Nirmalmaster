@@ -1,0 +1,45 @@
+name: Manual Cypress Test Run
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Select Environment'
+        required: true
+        type: choice
+        default: 'test'
+        options:
+          - test
+          - uat
+          - stage
+      spec:
+        description: 'Select Spec to Run'
+        required: true
+        type: choice
+        default: 'all'
+        options:
+          - all
+          - cypress/e2e/2-advanced-examples/waiting.cy.js
+          - cypress/e2e/2-advanced-examples/actions.cy.js
+
+jobs:
+  cypress-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+        with:
+          # If 'all' is selected, we pass an empty string to run everything
+          spec: ${{ github.event.inputs.spec == 'all' && '' || github.event.inputs.spec }}
+          start: npm start
+          wait-on: 'http://localhost:8080'
+          env: environment=${{ github.event.inputs.environment }}
+
+      - name: Upload Screenshots on Failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
